@@ -52,7 +52,10 @@ class ProductController extends Controller
             'supplier' => $data['supplier'],
         ]);
 
-        return response()->json($product);
+        return response()->json([
+            'success' => true,
+            'product' => $product,
+        ]);
     }
 
     private function randomId()
@@ -87,19 +90,23 @@ class ProductController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Product $product)
     {
-        $request->validate([
+        $data = $request->validate([
             'name' => 'required',
             'quantity' => 'required|integer',
             'price' => 'required|decimal:2',
             'supplier' => 'required',
         ]);
-    
-        $product = Product::findOrFail($id);
-        $product->update($request->only(['name', 'quantity', 'price', 'supplier']));
 
-        return response()->json(['success' => true]);
+        $product->update([
+            'name' => $data['name'],
+            'quantity' => $data['quantity'],
+            'price' => $data['price'],
+            'supplier' => $data['supplier'],
+        ]);
+
+        return redirect()->route('products', $product)->with('success', 'Product Updated Successfully');
     }
 
     /**

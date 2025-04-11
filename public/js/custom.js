@@ -10,7 +10,7 @@ $(function() {
     $('#create-form').on('submit', function(e) {
         e.preventDefault(); 
 
-        var formData = new FormData(this); 
+        let formData = new FormData(this); 
 
         $.ajax({
             url: $(this).attr('action'),  
@@ -57,7 +57,7 @@ $(function() {
             productSupplier = $(this).attr('data-supplier'),
             domainUrl = window.location.origin;
 
-            $('#edit-form').attr('action', domainUrl +'/produts/' + productId+ '/update')
+            $('#edit-form').attr('action', domainUrl +'/products/' + productId+ '/update')
 
             $('#edit-modal').find('#name').val(productName);
             $('#edit-modal').find('#quantity').val(productQty);
@@ -66,34 +66,6 @@ $(function() {
 
             $('#edit-modal').modal('show');
     });
-    // $('#edit-form').on('submit', function (e) {
-    //     e.preventDefault();
-
-    //     let id = $(this).attr('data-id');
-    //         updateUrl = `/product/${id}/update`; // Matches your route
-    //         formData = {
-    //             name: $('#name').val(),
-    //             quantity: $('#quantity').val(),
-    //             price: $('#price').val(),
-    //             supplier: $('#supplier').val()
-    //         };
-
-    //     $.ajax({
-    //         url: updateUrl,
-    //         type: 'PUT',
-    //         data: formData,
-    //         headers: {
-    //             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-    //         },
-    //         success: function () {
-    //             $('#edit-modal').modal('hide');
-    //             location.reload(); 
-    //         }
-    //     });
-    // });
-
-
-
 
 })
 

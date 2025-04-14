@@ -14,7 +14,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::all();
+        $products = Product::latest()->paginate(10);
         $data = [
             'products' => $products,
             'subtitle' => 'Product List',
@@ -22,6 +22,38 @@ class ProductController extends Controller
         return view('products.index', $data);
     }
 
+    public function list()
+    {
+        $products = Product::latest()->paginate(10);
+        $data = [
+            'products' => $products,
+        ];
+        return view('products.newList', $data);
+    }
+
+    public function restock(Request $request, $id)
+    {
+        $data = $request->validate([
+            'quantity' => 'required|integer',
+        ]);
+
+        $product = Product::findOrFail($id);
+        $product->increment('quantity', $data['quantity']);
+
+        return redirect()->route('products', $product)->with('success', 'Stock Updated Successfully');
+    }
+
+    public function deduct(Request $request, $id)
+    {
+        $data = $request->validate([
+            'quantity' => 'required|integer',
+        ]);
+
+        $product = Product::findOrFail($id);
+        $product->decrement('quantity', $data['quantity']);
+
+        return redirect()->route('products', $product)->with('success', 'Stock Updated Successfully');
+    }
     /**
      * Show the form for creating a new resource.
      */
@@ -36,7 +68,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name' => 'required',
+            'name' => 'required|unique:products,name',
             'quantity' => 'required|integer',
             'price' => 'required|decimal:2',
             'supplier' => 'required',
@@ -52,10 +84,7 @@ class ProductController extends Controller
             'supplier' => $data['supplier'],
         ]);
 
-        return response()->json([
-            'success' => true,
-            'product' => $product,
-        ]);
+        return response()->json(['success' => true, $product,]);
     }
 
     private function randomId()

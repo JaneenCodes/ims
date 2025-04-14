@@ -3,6 +3,42 @@
 @section('content')
     <div class="py-12 p-5">
         <div class="container">
+            @auth
+                @if(auth()->user()->role == 'admin')
+                    @if ($products->where('quantity', '<', 5)->count())
+                        <div class="alert-container mb-3 d-flex justify-content-center align-items-center">
+
+                            <div id="carouselExampleAutoplaying" class="carousel slide w-75" data-bs-ride="carousel">
+                                <div class="carousel-inner">
+                                    @foreach ($products->where('quantity', '<', 5)->values() as $index => $product)
+                                        <div class="carousel-item active">
+                                            <div class="d-flex justify-content-center align-items-center" style="height: 120px;">
+                                                <div class="alert alert-danger text-center w-100 mb-0">
+                                                    <strong class="fs-5">⚠️Low Stock Warning!</strong>
+                                                    <p class="mt-2 mb-0">
+                                                        The stock of <strong>{{ $product->name }}</strong> is below 5 units. Please restock!
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                            </div>
+
+                        </div>
+                    @endif
+
+                @endif
+            @endauth
+
             <div class="card shadow-xl rounded-2xl">
                 <div class="card-body text-gray-900">
 
@@ -15,9 +51,9 @@
                             @endif
                         @endauth                    
                     </div>
-
+                
                     <div class="table-responsive">
-                        <table class="table table-bordered  table-sm">
+                        <table class="table table-bordered table-sm">
                             <thead class="table-light">
                                 <tr>
                                     <th scope="col">Code</th>
@@ -34,7 +70,7 @@
                                     
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="product-list">
                                 @forelse ($products as $product)
                                     <tr class="hover-bg-light product-list">
                                         <td>{{ $product->SKU }}</td>
@@ -46,35 +82,31 @@
                                         @auth
                                             @if(auth()->user()->role == 'admin')
                                             <td class="text-center">
-                                                {{-- <a href="javascript:void(0)" 
-                                                class="view-btn btn btn-success btn-sm rounded-start-pill" 
-                                                data-url="">+RSTK
-                                                </a> 
-                                                <a href="javascript:void(0)" 
-                                                class="view-btn btn btn-warning btn-sm rounded-end-circle" 
-                                                data-url="">-DED
-                                                </a>  --}}
                                       
-                                                    <a href="javascript:void(0)"
-                                                       class="btn btn-success btn-sm rounded-start-pill"
-                                                       data-url="">
-                                                      +RSK
-                                                    </a>
-                                                    <a href="javascript:void(0)"
-                                                       class="btn btn-warning btn-sm rounded-end-pill"
-                                                       data-url="">
-                                                      -DED
-                                                    </a>
+                                                <a href="javascript:void(0)" 
+                                                    data-id="{{$product->id}}"
+                                                    data-name="{{$product->name}}"
+                                                    data-quantity="{{$product->quantity}}"
+                                                    class="rsk-btn edit-stock-btn btn btn-success btn-sm rounded-start-pill">
+                                                    +RSK
+                                                </a>
+                                                <a href="javascript:void(0)"
+                                                    data-id="{{$product->id}}"
+                                                    data-name="{{$product->name}}"
+                                                    data-quantity="{{$product->quantity}}"
+                                                    class="ded-btn edit-stock-btn btn btn-warning btn-sm rounded-end-pill">
+                                                    -DED
+                                                </a>
                                      
     
                                                 <a href="javascript:void(0)"
-                                                class="edit-btn btn btn-primary btn-sm rounded-pill"
-                                                data-id="{{ $product->id }}"
-                                                data-name="{{$product->name}}" 
-                                                data-price="{{$product->price}}"
-                                                data-quantity="{{$product->quantity}}"
-                                                data-supplier="{{$product->supplier}}">
-                                                Edit
+                                                    class="edit-btn btn btn-primary btn-sm rounded-pill"
+                                                    data-id="{{ $product->id }}"
+                                                    data-name="{{$product->name}}" 
+                                                    data-price="{{$product->price}}"
+                                                    data-quantity="{{$product->quantity}}"
+                                                    data-supplier="{{$product->supplier}}">
+                                                    Edit
                                                 </a>
     
                                                 <a href="javascript:void(0)" 
@@ -95,6 +127,9 @@
                                
                             </tbody>
                         </table>
+                    </div>
+                    <div class="d-flex justify-content-center mt-3">
+                        {{ $products->links('pagination::bootstrap-4') }}
                     </div>
 
                 </div>
@@ -145,7 +180,7 @@
                             <input type="text" name="supplier" id="supplier" class="form-control">
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary create-submit-btn">+ Add new product</button>
+                    <button type="submit" class="btn btn-primary">+ Add new product</button>
                 </form>
             </div>
             <div class="modal-footer">
@@ -200,6 +235,47 @@
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-success">Update</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Restock and Deduct Modal -->
+<div class="modal fade" id="edit-stock-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form action="" method="POST" id="edit-stock">
+            @csrf       
+
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif 
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Product Quantity</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" name="name" id="name" class="form-control" readonly>
+                        </div>
+                
+                        <div class="col-12 col-sm-6">
+                            <label for="quantity" class="form-label">Current Quantity: <small class="text-muted" id="current-qty"></small></label>
+                            <input type="number" name="quantity" id="quantity" class="form-control">                           
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Submit</button>
                 </div>
             </div>
         </form>

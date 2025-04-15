@@ -109,10 +109,17 @@
                                                     Edit
                                                 </a>
     
-                                                <a href="javascript:void(0)" 
+                                                {{-- <a href="javascript:void(0)" 
                                                 class="delete-btn btn btn-danger btn-sm rounded-pill" 
                                                 data-url="{{ route('product.destroy', $product->id) }}">Delete
-                                                </a> 
+                                                </a>  --}}
+                                                <form action="{{ route('product.destroy', $product->id) }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="delete-btn btn btn-danger btn-sm rounded-pill">
+                                                    Delete
+                                                    </button>
+                                                </form>
                                                 
                                             </td>
                                             @endif

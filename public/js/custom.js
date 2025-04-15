@@ -83,21 +83,24 @@ $(function() {
     });
 
    
-    $(document).on('click', '.delete-btn', function () {
-        let url = $(this).data('url'),
-            postObj = $(this).closest('.product-list'); 
+    // $(document).on('click', '.delete-btn', function () {
+    //     let url = $(this).data('url'),
+    //         postObj = $(this).closest('.product-list'); 
     
-        $.ajax({
-            url: url,
-            type: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function() {  
-                postObj.fadeOut("slow", function () { $(this).remove(); }); 
-            }
-        });       
-    });
+    //     $.ajax({
+    //         url: url,
+    //         type: 'DELETE',
+    //         headers: {
+    //             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    //         },
+    //         success: function() {  
+    //             // postObj.fadeOut("slow", function () { $(this).remove(); }); 
+                
+    //             location.reload();
+ 
+    //         }
+    //     });       
+    // });
 
 
 })

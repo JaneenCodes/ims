@@ -22,27 +22,28 @@ $(function() {
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
-            success: function(response) {
-                if (response.success) {
-                    $('#create-modal').modal('hide');
-                    $.ajax({
-                        url: '/products/list',
-                        type: 'GET',
-                        success: function(newList) {
-                            $('#product-list').html(newList); 
-                        },
-                        error: function() {
-                            alert('Error fetching updated product list.');
-                        }
-                    });
-                } else {
-                    alert('Error adding the product!');
-                }
-            }          
+
+            success: function() {              
+                $('#create-modal').modal('hide');
+                window.location.reload();
+
+                      
+            },error: function(xhr, status, error) {
+
+                let oData = xhr.responseJSON.errors,
+                    html = '';
+
+                    for (let i in oData) {
+                        let element = oData[i];
+                        html += '<li>' + element[0] + '</li>';                 
+                    }    
+                    $('#create-modal').find('.error-messages').prop('hidden', false);  
+                    $('#create-modal').find('.error-messages').html(html);                    
+              }                
         });
     });
 
-
+//Edit Stock Modal
     $(document).on('click', '.edit-stock-btn', function(){
         let stockId = $(this).attr('data-id'),
             stockName = $(this).attr('data-name'),  
@@ -63,7 +64,7 @@ $(function() {
         $('#edit-stock-modal').modal('show');    
     });
 
-
+//Edit Form Modal
     $(document).on('click', '.edit-btn', function () {
         let productId = $(this).attr('data-id'),
             productName = $(this).attr('data-name'),

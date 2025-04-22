@@ -15,9 +15,11 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::latest()->paginate(10);
+        $low_stock_products = Product::where('quantity', '<', 5)->get();
         $data = [
             'products' => $products,
             'subtitle' => 'Product List',
+            'low_stock_products' => $low_stock_products,
         ];
         return view('products.index', $data);
     }
@@ -70,7 +72,7 @@ class ProductController extends Controller
         $data = $request->validate([
             'name' => 'required|unique:products,name',
             'quantity' => 'required|integer',
-            'price' => 'required|decimal:2',
+            'price' => 'required|integer',
             'supplier' => 'required',
         ]);
   
@@ -124,7 +126,7 @@ class ProductController extends Controller
         $data = $request->validate([
             'name' => 'required',
             'quantity' => 'required|integer',
-            'price' => 'required|decimal:2',
+            'price' => 'required|integer',
             'supplier' => 'required',
         ]);
 

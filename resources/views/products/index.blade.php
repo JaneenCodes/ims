@@ -5,13 +5,13 @@
         <div class="container">
             @auth
                 @if(auth()->user()->role == 'admin')
-                    @if ($products->where('quantity', '<', 5)->count())
+                    @if ($low_stock_products->count())
                         <div class="alert-container mb-3 d-flex justify-content-center align-items-center">
 
                             <div id="carouselExampleAutoplaying" class="carousel slide w-75" data-bs-ride="carousel">
                                 <div class="carousel-inner">
-                                    @foreach ($products->where('quantity', '<', 5)->values() as $index => $product)
-                                        <div class="carousel-item active">
+                                    @foreach ($low_stock_products as $index => $product)
+                                        <div class="carousel-item {{ $index == 0 ? 'active' : ''}}">
                                             <div class="d-flex justify-content-center align-items-center" style="height: 120px;">
                                                 <div class="alert alert-danger text-center w-100 mb-0">
                                                     <strong class="fs-5">⚠️Low Stock Warning!</strong>
@@ -116,7 +116,7 @@
                                                 <form action="{{ route('product.destroy', $product->id) }}" method="POST" class="d-inline">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="delete-btn btn btn-danger btn-sm rounded-pill">
+                                                    <button type="submit" class="delete-btn btn btn-danger btn-sm rounded-pill" onclick="return confirm('Are you sure you want to delete this product?')">
                                                     Delete
                                                     </button>
                                                 </form>
@@ -146,7 +146,7 @@
 
   
 <!--Create Product Modal -->
-<div class="modal fade" id="create-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div class="modal fade" id="create-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -154,18 +154,16 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="" method="POST" id="create-form" class="p-4 md:p-5">
+                <form action="{{route('product.store')}}" method="POST" id="create-form" class="p-4 md:p-5">
                     @csrf       
-
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <ul>
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
+     
+                    
+                        <div class="alert alert-danger error-messages" hidden>
+                            <ul>                
+                                                    
                             </ul>
                         </div>
-                    @endif 
+
                     <div class="row g-4">
                         <div class="col-12">
                             <label for="name" class="form-label">Name</label>
@@ -187,7 +185,7 @@
                             <input type="text" name="supplier" id="supplier" class="form-control">
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">+ Add new product</button>
+                    <button type="submit" class="btn btn-primary mt-3">+ Add new product</button>
                 </form>
             </div>
             <div class="modal-footer">
@@ -196,6 +194,8 @@
         </div>
     </div>
 </div>
+
+
 
 <!-- Edit Modal -->
 <div class="modal fade" id="edit-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
